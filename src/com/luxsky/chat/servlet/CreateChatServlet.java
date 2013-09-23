@@ -14,6 +14,7 @@ import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
 
+import com.luxsky.chat.common.ConstField;
 import com.luxsky.chat.dao.ChatRoomDAO;
 import com.luxsky.chat.dao.UserDAO;
 import com.luxsky.chat.vo.ChatRoomVo;
@@ -49,7 +50,7 @@ public class CreateChatServlet extends HttpServlet {
 			UserDAO udao = new UserDAO();
 			String buyersStatus = udao.userStatus(buyersEmail);
 			if("02".equals(buyersStatus) || "03".equals(buyersStatus)) {
-				status = 501;
+				status = ConstField.ERROR_USER_NOT_FOUND;
 			}
 			else {
 			
@@ -69,7 +70,7 @@ public class CreateChatServlet extends HttpServlet {
 				}
 				else {
 					// 판매 상품에 대한 구매자와 판매자 대화방이 있다면 이미 있는 방이라고 리턴..
-					status = 502;
+					status = ConstField.ERROR_EXSIT_CHAT_ROOM;
 				}
 			}
 			
@@ -90,7 +91,7 @@ public class CreateChatServlet extends HttpServlet {
 		else {
 			logger.info("User Session is not found.");
 			Map<String, Object> map = new HashMap<String, Object>();
-			map.put("status", 901);
+			map.put("status", ConstField.ERROR_SESSION_NOT_FOUND);
 			res.getWriter().write("" + JSONObject.fromObject(map).toString() + "");
 			res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			res.setContentType("application/json");

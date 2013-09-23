@@ -4,12 +4,6 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.etalk.common.ETalkCommon;
-import com.etalk.dao.PushDAO;
-import com.etalk.dao.UserDAO;
-import com.etalk.web.vo.AlarmVo;
-import com.etalk.web.vo.DeviceVo;
-import com.etalk.web.vo.UserVo;
 
 public class PushMgr {
 	

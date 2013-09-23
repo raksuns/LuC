@@ -15,6 +15,8 @@ import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
 
+import com.luxsky.chat.common.ConstField;
+
 @SuppressWarnings("serial")
 @WebServlet(urlPatterns="/chaton", asyncSupported = true)
 public class ChatOnServlet extends HttpServlet {
@@ -42,7 +44,7 @@ public class ChatOnServlet extends HttpServlet {
 		else {
 			logger.info("User Session is not found.");
 			Map<String, Object> map = new HashMap<String, Object>();
-			map.put("status", 901);
+			map.put("status", ConstField.ERROR_SESSION_NOT_FOUND);
 			res.getWriter().write("" + JSONObject.fromObject(map).toString() + "");
 			res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			res.setContentType("application/json");

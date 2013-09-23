@@ -14,6 +14,7 @@ import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
 
+import com.luxsky.chat.common.ConstField;
 import com.luxsky.chat.dao.UserDAO;
 import com.luxsky.chat.vo.UserVo;
 
@@ -48,7 +49,7 @@ public class LogOnServlet extends HttpServlet {
 		}
 		else {
 			Map<String, Object> map = new HashMap<String, Object>();
-			map.put("status", 901);
+			map.put("status", ConstField.ERROR_LOGIN);
 			res.getWriter().write("" + JSONObject.fromObject(map).toString() + "");
 			res.setStatus(HttpServletResponse.SC_OK);
 			res.setContentType("application/json");

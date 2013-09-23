@@ -18,6 +18,7 @@ import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
 
+import com.luxsky.chat.dao.ChatRoomDAO;
 import com.luxsky.chat.vo.ChatMessageVo;
 
 public class ChatRoom {
@@ -34,7 +35,7 @@ public class ChatRoom {
 
 	private Thread messageHandlerThread;
 	private boolean running;
-
+	
 	private ChatRoom() {
 	}
 
@@ -98,41 +99,6 @@ public class ChatRoom {
 		});
 	}
 	
-//	public void sendUserList(String nickname) {
-//		AsyncContext ac = clients.get(nickname);
-//		if(ac == null) {
-//			
-//		}
-//		else {
-//			
-//			List<String> users = getChatUsers();
-//			HashMap<String, List<String>> userMap = new HashMap<String, List<String>>();
-//			userMap.put("users", users);
-//			PrintWriter acWriter = null;
-//			try {
-//				acWriter = ac.getResponse().getWriter();
-//				acWriter.println(userMap.toString());
-//				acWriter.flush();
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
-//			finally {
-//				if(acWriter != null) {
-//					acWriter.flush();
-//				}
-//			}
-//		}
-//	}
-
-//	public void sendMessageToAll(String message) {
-//		try {
-//			messageQueue.put(message);
-//		} catch (InterruptedException e) {
-//			e.printStackTrace();
-//		}
-//		logger.info("Add message [" + message + "] to messageQueue");
-//	}
-	
 	public void sendMessageToUser(String nickname, ChatMessageVo message) {
 		try {
 			if(nickname != null && message != null) {
@@ -162,6 +128,7 @@ public class ChatRoom {
 				// 채팅 알람 상태도 알아와서... 체크하고..
 				
 				// device type 알아와서...
+				
 				// 각 디바이드별..푸시를 보내자..
 			}
 		} catch (IOException e) {

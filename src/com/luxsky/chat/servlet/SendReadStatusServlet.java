@@ -14,6 +14,7 @@ import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
 
+import com.luxsky.chat.common.ConstField;
 import com.luxsky.chat.dao.ChatRoomDAO;
 import com.luxsky.chat.vo.ChatReadStatusVo;
 
@@ -36,11 +37,11 @@ public class SendReadStatusServlet extends HttpServlet {
 		
 		if(sessionEmail == null || "".equals(sessionEmail)) {
 			logger.info("User Session is not found.");
-			reqState = 1;
+			reqState = ConstField.ERROR_SESSION_NOT_FOUND;
 		}
 		else if(talk_room_id == null || "".equals(talk_room_id)) {
-			logger.info("talk_room is not found.");
-			reqState = 2;
+			logger.info("talk_room_id is not found.");
+			reqState = ConstField.ERROR_REQ_PARAM;
 		}
 		
 		// 채팅 메시지 읽은 시간 요청한다. 각 사용자들은 이 시간을 기준으로 대화 상대가 대화를 읽었는지 안읽었는지 판단한다.
@@ -61,11 +62,19 @@ public class SendReadStatusServlet extends HttpServlet {
 			}
 			else {
 				// 없는 대화 방임..
+				Map<String, Object> map = new HashMap<String, Object>();
+				map.put("status", ConstField.ERROR_NOT_FOUND_CHAT_ROOM);
+				res.getWriter().write("" + JSONObject.fromObject(map).toString() + "");
+				res.setStatus(HttpServletResponse.SC_OK);
+				res.setContentType("application/json");
+				res.setHeader("Cache-Control", "private");
+				res.setHeader("Pragma", "no-cache");
+				req.setCharacterEncoding("UTF-8");
 			}
 		}
 		else {
 			Map<String, Object> map = new HashMap<String, Object>();
-			map.put("status", (910 + reqState));
+			map.put("status", reqState);
 			res.getWriter().write("" + JSONObject.fromObject(map).toString() + "");
 			res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			res.setContentType("application/json");

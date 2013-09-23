@@ -14,6 +14,7 @@ import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
 
+import com.luxsky.chat.common.ConstField;
 import com.luxsky.chat.dao.ChatRoomDAO;
 import com.luxsky.chat.dao.UserDAO;
 import com.luxsky.chat.vo.ChatMessageVo;
@@ -40,19 +41,19 @@ public class SendPhotoServlet extends HttpServlet {
 		
 		if(sessionEmail == null || "".equals(sessionEmail)) {
 			logger.info("User Session is not found.");
-			reqState = 1;
+			reqState = ConstField.ERROR_SESSION_NOT_FOUND;
 		}
 		else if(talk_room_id == null || "".equals(talk_room_id)) {
-			logger.info("talk_room is not found.");
-			reqState = 2;
+			logger.info("talk_room_id is not found.");
+			reqState = ConstField.ERROR_REQ_PARAM;
 		}
 		else if(receiver == null || "".equals(receiver)) {
 			logger.info("receiver is not found.");
-			reqState = 3;
+			reqState = ConstField.ERROR_REQ_PARAM;
 		}
 		else if(message == null || "".equals(message)) {
 			logger.info("message is not found.");
-			reqState = 4;
+			reqState = ConstField.ERROR_REQ_PARAM;
 		}
 		
 		if(reqState == 0) {
@@ -60,40 +61,58 @@ public class SendPhotoServlet extends HttpServlet {
 			UserDAO udao = new UserDAO();
 			String userStatus = udao.userStatus(receiver);
 			if("02".equals(userStatus) || "03".equals(userStatus)) {
-				// status = 501;
-			}
-			
-			ChatRoomDAO crdao = new ChatRoomDAO();
-			ChatRoomVo crvo = crdao.getChatRoom(Integer.parseInt(talk_room_id));
-			
-			if(crvo != null) {
-				ChatMessageVo cmvo = new ChatMessageVo();
-				cmvo.setProduct_seq(crvo.getProduct_seq());
-				cmvo.setSeller_email(crvo.getSeller_email());
-				cmvo.setBuyers_email(crvo.getBuyers_email());
-				cmvo.setContent(message);
-				cmvo.setMsg_type("P");
+				reqState = ConstField.ERROR_USER_NOT_FOUND;
 				
-				if(sessionEmail.equals(crvo.getSeller_email())) {
-					cmvo.setWriter("S");
-				}
-				else {
-					cmvo.setWriter("B");
-				}
-				
-				crdao.insertChatMessage(cmvo);
-				
-				logger.info("User Session Name : " + sessionEmail);
-				ChatRoom.getInstance().sendMessageToUser(receiver, cmvo);
-				res.getWriter().print("OK");
+				Map<String, Object> map = new HashMap<String, Object>();
+				map.put("status", reqState);
+				res.getWriter().write("" + JSONObject.fromObject(map).toString() + "");
+				res.setStatus(HttpServletResponse.SC_OK);
+				res.setContentType("application/json");
+				res.setHeader("Cache-Control", "private");
+				res.setHeader("Pragma", "no-cache");
+				req.setCharacterEncoding("UTF-8");
 			}
 			else {
-				// 없는 대화 방임..
+				ChatRoomDAO crdao = new ChatRoomDAO();
+				ChatRoomVo crvo = crdao.getChatRoom(Integer.parseInt(talk_room_id));
+				
+				if(crvo != null) {
+					ChatMessageVo cmvo = new ChatMessageVo();
+					cmvo.setProduct_seq(crvo.getProduct_seq());
+					cmvo.setSeller_email(crvo.getSeller_email());
+					cmvo.setBuyers_email(crvo.getBuyers_email());
+					cmvo.setContent(message);
+					cmvo.setMsg_type("P");
+					
+					if(sessionEmail.equals(crvo.getSeller_email())) {
+						cmvo.setWriter("S");
+					}
+					else {
+						cmvo.setWriter("B");
+					}
+					
+					crdao.insertChatMessage(cmvo);
+					
+					logger.info("User Session Name : " + sessionEmail);
+					ChatRoom.getInstance().sendMessageToUser(receiver, cmvo);
+					res.getWriter().print("OK");
+				}
+				else {
+					// 없는 대화 방임..
+					Map<String, Object> map = new HashMap<String, Object>();
+					map.put("status", ConstField.ERROR_NOT_FOUND_CHAT_ROOM);
+					res.getWriter().write("" + JSONObject.fromObject(map).toString() + "");
+					res.setStatus(HttpServletResponse.SC_OK);
+					res.setContentType("application/json");
+					res.setHeader("Cache-Control", "private");
+					res.setHeader("Pragma", "no-cache");
+					req.setCharacterEncoding("UTF-8");
+				}
 			}
 		}
 		else {
 			Map<String, Object> map = new HashMap<String, Object>();
-			map.put("status", (910 + reqState));
+			map.put("status", reqState);
 			res.getWriter().write("" + JSONObject.fromObject(map).toString() + "");
 			res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			res.setContentType("application/json");
