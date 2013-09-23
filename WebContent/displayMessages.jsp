@@ -14,38 +14,37 @@
 	{
 		try
 		{
-			roomList = (ChatRoomList) application.getAttribute("chatroomlist");
-			roonName = roomList.getRoomOfChatter(nickname).getName();
-			if (roonName != null && roonName != "")
+	roomList = (ChatRoomList) application.getAttribute("chatroomlist");
+	roonName = roomList.getRoomOfChatter(nickname).getName();
+	if (roonName != null && roonName != "")
+	{
+		chatRoom = roomList.getUser(roonName);
+		chatter = chatRoom.getChatter(nickname);
+		if (chatRoom != null)
+		{
+			long enteredAt = chatter.getEnteredInRoomAt();
+			if (enteredAt != -1)
 			{
-				chatRoom = roomList.getRoom(roonName);
-				chatter = chatRoom.getChatter(nickname);
-				if (chatRoom != null)
-				{
-					long enteredAt = chatter.getEnteredInRoomAt();
-					if (enteredAt != -1)
-					{
-						messages = chatRoom.getMessages(enteredAt);					
-					}
-					else
-					{
-						messages = chatRoom.getMessages(chatter.getLoginTime());
-					}
-
-				}
-				else
-				{
-					out.write("<b>Room " + roonName + " not found</b>");
-					out.close();
-				}
+				messages = chatRoom.getMessages(enteredAt);					
 			}
+			else
+			{
+				messages = chatRoom.getMessages(chatter.getLoginTime());
+			}
+
+		}
+		else
+		{
+			out.write("<b>Room " + roonName + " not found</b>");
+			out.close();
+		}
+	}
 		}
 		catch(Exception e)
 		{
-			System.out.println("Exception: "+ e.getMessage());
-			throw new ServletException("Unable to get handle to ServletContext");
-		}	
-	
+	System.out.println("Exception: "+ e.getMessage());
+	throw new ServletException("Unable to get handle to ServletContext");
+		}
 %>
 <HTML>
 <HEAD>

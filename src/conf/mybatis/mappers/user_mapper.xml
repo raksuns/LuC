@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.luxsky.chat.user.Mapper">
+
+	<select id="selectUser" parameterType="String" resultType="UserVo">
+		<![CDATA[
+		select userId, nickName, sex, age, location, title, joinCount, profileImage, profileThumbImage,
+			isConnect, smessage, houseLock, deviceType, regDate
+		from tbl_user where nickName = #{nickName} and secession = 'N'
+		]]>
+	</select>
+
+	<select id="memberCheck" parameterType="UserVo" resultType="Integer">
+		<![CDATA[
+		select count(1)
+		from MEMBER where email = #{email} and passwd=#{passwd}
+		]]>
+	</select>
+	
+	<select id="userStatus" parameterType="String" resultType="String">
+		<![CDATA[
+		select status
+		from MEMBER where email = #{email}
+		]]>
+	</select>
+</mapper>
+	

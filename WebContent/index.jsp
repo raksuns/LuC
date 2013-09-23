@@ -1,10 +1,5 @@
-<%-- Created by IntelliJ IDEA. --%>
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
-  <head>
-    <title></title>
-  </head>
-  <body>
-
-  </body>
+<head>
+<meta http-equiv="refresh" content="0;URL=handshake">
+</head>
 </html>

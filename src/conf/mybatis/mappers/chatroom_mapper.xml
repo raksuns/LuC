@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.luxsky.chat.chatroom.Mapper">
+
+	<select id="chatRoomCheck" parameterType="ChatRoomVo" resultType="Integer">
+		<![CDATA[
+		select count(1)
+		from TALK_ROOM where seller_email=#{seller_email} and buyers_email=#{buyers_email} and product_seq=#{product_seq}
+		]]>
+	</select>
+	
+	<insert id="createChatRoom" parameterType="ChatRoomVo">
+		insert into TALK_ROOM (
+			product_seq,
+			seller_email,
+			buyers_email
+		)
+		values (
+			#{product_seq}, 
+			#{seller_email},
+			#{buyers_email}
+	    );
+	    <selectKey keyProperty="room_seq" resultType="Integer">
+			SELECT LAST_INSERT_ID();
+		</selectKey>
+	</insert>
+	
+	<select id="getChatRoom" parameterType="Integer" resultType="ChatRoomVo">
+		<![CDATA[
+		select talk_room_id, product_seq, seller_email, buyers_email from TALK_ROOM where talk_room_id = #{talk_room_id}
+		]]>
+	</select>
+	
+	<select id="getChatReadStatus" parameterType="Integer" resultType="ChatReadStatusVo">
+		<![CDATA[
+		select talk_room_id, product_seq, seller_email, buyers_email, seller_read_dt, buyers_read_dt from TALK_ROOM where talk_room_id = #{talk_room_id}
+		]]>
+	</select>
+	
+	<insert id="insertChatMessage" parameterType="ChatMessageVo">
+		insert into TALK (
+			product_seq,
+			seller_email,
+			buyers_email,
+			reg_dt,
+			content,
+			writer,
+			msg_type,
+			talk_room_id
+		)
+		values (
+			#{product_seq}, 
+			#{seller_email},
+			#{buyers_email},
+			NOW(),
+			#{chat_message},
+			#{writer},
+			#{msg_type},
+			#{talk_room_id}
+	    );
+	    <selectKey keyProperty="talk_seq" resultType="Integer">
+			SELECT LAST_INSERT_ID();
+		</selectKey>
+	</insert>
+	
+	<select id="getChatMessageList" parameterType="ChatMessageListVo" resultType="ChatMessageListVo">
+		<![CDATA[
+		select 
+			product_seq, seller_email, buyers_email, talk_seq, reg_dt, content, writer, msg_type, talk_room_id
+		from 
+			TALK
+		where 
+			reg_dt < #{latest}
+			and
+			talk_room_id = #{talk_room_id}
+		order by reg_dt desc;
+		]]>
+	</select>
+	
+	<update id="updateLatestToSeller" parameterType="Integer">
+		<![CDATA[
+		update TALK_ROOM
+			SET seller_read_dt = NOW()
+		WHERE talk_room_id = #{talk_room_id}
+		]]>
+	</update>
+	<update id="updateLatestToBuyers" parameterType="Integer">
+		<![CDATA[
+		update TALK_ROOM
+			SET buyers_read_dt = NOW()
+		WHERE talk_room_id = #{talk_room_id}
+		]]>
+	</update>
+</mapper>
+	
