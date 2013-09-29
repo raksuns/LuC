@@ -32,12 +32,14 @@ public class ChatOnServlet extends HttpServlet {
 
 		logger.info("Received ChatOn");
 		
-		String email = (String)req.getSession().getAttribute("email");//(String)req.getSession().getAttribute("email");//req.getParameter("email");
+		req.setCharacterEncoding("UTF-8");
+		
+		String email = (String)req.getSession().getAttribute("email");
 		
 		if(email != null && !"".equals(email)) {
 			
 			AsyncContext asyncContext = req.startAsync();
-			asyncContext.setTimeout(40000);
+			asyncContext.setTimeout(0);
 			ChatRoom.getInstance().enter(email, asyncContext);
 			logger.info("Connect User : " + email);
 		}
@@ -45,12 +47,12 @@ public class ChatOnServlet extends HttpServlet {
 			logger.info("User Session is not found.");
 			Map<String, Object> map = new HashMap<String, Object>();
 			map.put("status", ConstField.ERROR_SESSION_NOT_FOUND);
-			res.getWriter().write("" + JSONObject.fromObject(map).toString() + "");
-			res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			res.setCharacterEncoding("UTF-8");
+			res.setStatus(HttpServletResponse.SC_OK);
 			res.setContentType("application/json");
 			res.setHeader("Cache-Control", "private");
 			res.setHeader("Pragma", "no-cache");
-			req.setCharacterEncoding("UTF-8");
+			res.getWriter().write("" + JSONObject.fromObject(map).toString() + "");
 		}
 
 //		res.setContentType("text/plain");

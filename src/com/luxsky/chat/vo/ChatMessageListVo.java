@@ -1,7 +1,6 @@
 package com.luxsky.chat.vo;
 
 public class ChatMessageListVo {
-	private String latest;
 	private int product_seq;
 	private String seller_email;
 	private String buyers_email;
@@ -11,14 +10,6 @@ public class ChatMessageListVo {
 	private String writer; // S-판매자, B-구매자
 	private String msg_type; // C :채팅 메시지, P : 채팅중 사진 전송
 	private int talk_room_id;
-
-	public String getLatest() {
-		return latest;
-	}
-
-	public void setLatest(String latest) {
-		this.latest = latest;
-	}
 
 	public int getTalk_room_id() {
 		return talk_room_id;

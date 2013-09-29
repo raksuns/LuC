@@ -34,6 +34,8 @@ public class CreateChatServlet extends HttpServlet {
 
 		logger.info("Received CreateChatServlet");
 		
+		req.setCharacterEncoding("UTF-8");
+		
 		String email = (String)req.getSession().getAttribute("email");
 		logger.info("Connect User Email : " + email);
 		
@@ -65,39 +67,48 @@ public class CreateChatServlet extends HttpServlet {
 				
 				if(result < 1) {
 					// 없다면 생성하고, 생성된 방과 구매자, 판매자, 판매 상품 정보를 저장
-					talk_room_id = croom.createChatRoom(crvo);
+					croom.createChatRoom(crvo);
+					talk_room_id = crvo.getTalk_room_id();
 					status  = 0;
 				}
 				else {
 					// 판매 상품에 대한 구매자와 판매자 대화방이 있다면 이미 있는 방이라고 리턴..
 					status = ConstField.ERROR_EXSIT_CHAT_ROOM;
+					talk_room_id = croom.selectChatRoom(crvo);
 				}
 			}
 			
 			Map<String, Object> map = new HashMap<String, Object>();
-			map.put("status", status);
 			
-			if(talk_room_id > 0) {
+			if(status == 0 && talk_room_id > 0) {
+				map.put("status", status);
+				map.put("talk_room_id", talk_room_id);
+			}
+			else if(status == 0 && talk_room_id < 1) {
+				map.put("status", ConstField.ERROR_CHAT_ROOM_FAIL);
+			}
+			else if(status == ConstField.ERROR_EXSIT_CHAT_ROOM) {
+				map.put("status", status);
 				map.put("talk_room_id", talk_room_id);
 			}
 			
-			res.getWriter().write("" + JSONObject.fromObject(map).toString() + "");
 			res.setStatus(HttpServletResponse.SC_OK);
 			res.setContentType("application/json");
 			res.setHeader("Cache-Control", "private");
 			res.setHeader("Pragma", "no-cache");
-			req.setCharacterEncoding("UTF-8");
+			res.setCharacterEncoding("UTF-8");
+			res.getWriter().write("" + JSONObject.fromObject(map).toString() + "");
 		}
 		else {
 			logger.info("User Session is not found.");
 			Map<String, Object> map = new HashMap<String, Object>();
 			map.put("status", ConstField.ERROR_SESSION_NOT_FOUND);
-			res.getWriter().write("" + JSONObject.fromObject(map).toString() + "");
 			res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			res.setContentType("application/json");
 			res.setHeader("Cache-Control", "private");
 			res.setHeader("Pragma", "no-cache");
-			req.setCharacterEncoding("UTF-8");
+			res.setCharacterEncoding("UTF-8");
+			res.getWriter().write("" + JSONObject.fromObject(map).toString() + "");
 		}
 		
 	}

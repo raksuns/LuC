@@ -33,6 +33,8 @@ public class LogOnServlet extends HttpServlet {
 
 		logger.info("Received ChatOn");
 		
+		req.setCharacterEncoding("UTF-8");
+		
 		String email = req.getParameter("email");
 		String passwd = req.getParameter("passwd");
 		logger.info("Connect User Email : " + email);
@@ -46,16 +48,26 @@ public class LogOnServlet extends HttpServlet {
 		
 		if(result > 0) {
 			req.getSession().setAttribute("email", email);
-		}
-		else {
+			
 			Map<String, Object> map = new HashMap<String, Object>();
-			map.put("status", ConstField.ERROR_LOGIN);
-			res.getWriter().write("" + JSONObject.fromObject(map).toString() + "");
+			map.put("status", ConstField.SUCCESS);
 			res.setStatus(HttpServletResponse.SC_OK);
 			res.setContentType("application/json");
 			res.setHeader("Cache-Control", "private");
 			res.setHeader("Pragma", "no-cache");
-			req.setCharacterEncoding("UTF-8");
+			res.setCharacterEncoding("UTF-8");
+			res.getWriter().write("" + JSONObject.fromObject(map).toString() + "");
+			
+		}
+		else {
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("status", ConstField.ERROR_LOGIN);
+			res.setStatus(HttpServletResponse.SC_OK);
+			res.setContentType("application/json");
+			res.setHeader("Cache-Control", "private");
+			res.setHeader("Pragma", "no-cache");
+			res.setCharacterEncoding("UTF-8");
+			res.getWriter().write("" + JSONObject.fromObject(map).toString() + "");
 		}
 		// 사용자 로그인 결과를 여기서 확인 하자..DB조회..
 		

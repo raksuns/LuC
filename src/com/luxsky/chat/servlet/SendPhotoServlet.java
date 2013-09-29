@@ -31,11 +31,16 @@ public class SendPhotoServlet extends HttpServlet {
 
 		logger.info("Received SEND request");
 		
+		req.setCharacterEncoding("UTF-8");
+		
 		String sessionEmail = (String)req.getSession().getAttribute("email");
 		
 		String receiver = req.getParameter("receiver");
 		String talk_room_id = req.getParameter("talk_room_id");
-		String message = req.getParameter("message");
+		String origUrl = req.getParameter("origUrl");
+		String thumbUrl = req.getParameter("thumbUrl");
+		String thumbSizeWidth = req.getParameter("thumbSizeWidth");
+		String thumbSizeHeight = req.getParameter("thumbSizeHeight");
 		
 		int reqState = 0;
 		
@@ -51,7 +56,19 @@ public class SendPhotoServlet extends HttpServlet {
 			logger.info("receiver is not found.");
 			reqState = ConstField.ERROR_REQ_PARAM;
 		}
-		else if(message == null || "".equals(message)) {
+		else if(origUrl == null || "".equals(origUrl)) {
+			logger.info("message is not found.");
+			reqState = ConstField.ERROR_REQ_PARAM;
+		}
+		else if(thumbUrl == null || "".equals(thumbUrl)) {
+			logger.info("message is not found.");
+			reqState = ConstField.ERROR_REQ_PARAM;
+		}
+		else if(thumbSizeWidth == null || "".equals(thumbSizeWidth)) {
+			logger.info("message is not found.");
+			reqState = ConstField.ERROR_REQ_PARAM;
+		}
+		else if(thumbSizeHeight == null || "".equals(thumbSizeHeight)) {
 			logger.info("message is not found.");
 			reqState = ConstField.ERROR_REQ_PARAM;
 		}
@@ -77,11 +94,17 @@ public class SendPhotoServlet extends HttpServlet {
 				ChatRoomVo crvo = crdao.getChatRoom(Integer.parseInt(talk_room_id));
 				
 				if(crvo != null) {
+					HashMap<String, Object> photo = new HashMap<String, Object>();
+					photo.put("origUrl", origUrl);
+					photo.put("thumbUrl", thumbUrl);
+					photo.put("thumbSizeWidth", thumbSizeWidth);
+					photo.put("thumbSizeHeight", thumbSizeHeight);
+					
 					ChatMessageVo cmvo = new ChatMessageVo();
 					cmvo.setProduct_seq(crvo.getProduct_seq());
 					cmvo.setSeller_email(crvo.getSeller_email());
 					cmvo.setBuyers_email(crvo.getBuyers_email());
-					cmvo.setContent(message);
+					cmvo.setContent(JSONObject.fromObject(photo).toString());
 					cmvo.setMsg_type("P");
 					
 					if(sessionEmail.equals(crvo.getSeller_email())) {
@@ -101,24 +124,24 @@ public class SendPhotoServlet extends HttpServlet {
 					// 없는 대화 방임..
 					Map<String, Object> map = new HashMap<String, Object>();
 					map.put("status", ConstField.ERROR_NOT_FOUND_CHAT_ROOM);
-					res.getWriter().write("" + JSONObject.fromObject(map).toString() + "");
 					res.setStatus(HttpServletResponse.SC_OK);
 					res.setContentType("application/json");
 					res.setHeader("Cache-Control", "private");
 					res.setHeader("Pragma", "no-cache");
-					req.setCharacterEncoding("UTF-8");
+					res.setCharacterEncoding("UTF-8");
+					res.getWriter().write("" + JSONObject.fromObject(map).toString() + "");
 				}
 			}
 		}
 		else {
 			Map<String, Object> map = new HashMap<String, Object>();
 			map.put("status", reqState);
-			res.getWriter().write("" + JSONObject.fromObject(map).toString() + "");
 			res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			res.setContentType("application/json");
 			res.setHeader("Cache-Control", "private");
 			res.setHeader("Pragma", "no-cache");
-			req.setCharacterEncoding("UTF-8");
+			res.setCharacterEncoding("UTF-8");
+			res.getWriter().write("" + JSONObject.fromObject(map).toString() + "");
 		}
 	}
 }

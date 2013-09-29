@@ -7,7 +7,25 @@
 	<select id="chatRoomCheck" parameterType="ChatRoomVo" resultType="Integer">
 		<![CDATA[
 		select count(1)
-		from TALK_ROOM where seller_email=#{seller_email} and buyers_email=#{buyers_email} and product_seq=#{product_seq}
+		from TALK_ROOM 
+		where 
+			(seller_email=#{seller_email} and buyers_email=#{buyers_email})
+			or
+			(seller_email=#{buyers_email} and buyers_email=#{seller_email})
+			and product_seq=#{product_seq}
+			
+		]]>
+	</select>
+	
+	<select id="selectChatRoom" parameterType="ChatRoomVo" resultType="Integer">
+		<![CDATA[
+		select talk_room_id
+		from TALK_ROOM 
+		where 
+			(seller_email=#{seller_email} and buyers_email=#{buyers_email})
+			or
+			(seller_email=#{buyers_email} and buyers_email=#{seller_email})
+			and product_seq=#{product_seq}
 		]]>
 	</select>
 	
@@ -22,7 +40,7 @@
 			#{seller_email},
 			#{buyers_email}
 	    );
-	    <selectKey keyProperty="room_seq" resultType="Integer">
+	    <selectKey keyProperty="talk_room_id" resultType="Integer">
 			SELECT LAST_INSERT_ID();
 		</selectKey>
 	</insert>
@@ -55,7 +73,7 @@
 			#{seller_email},
 			#{buyers_email},
 			NOW(),
-			#{chat_message},
+			#{content},
 			#{writer},
 			#{msg_type},
 			#{talk_room_id}
@@ -65,14 +83,26 @@
 		</selectKey>
 	</insert>
 	
-	<select id="getChatMessageList" parameterType="ChatMessageListVo" resultType="ChatMessageListVo">
+	<select id="selectChatMessage" parameterType="Integer" resultType="ChatMessageVo">
+		<![CDATA[
+		select 
+			talk_seq, product_seq, seller_email, buyers_email, reg_dt, content, writer, msg_type, talk_room_id
+		from 
+			TALK
+		where 
+			talk_seq = #{talk_seq}
+		;
+		]]>
+	</select>
+	
+	<select id="getChatMessageList" parameterType="ChatMessageListParam" resultType="ChatMessageListVo">
 		<![CDATA[
 		select 
 			product_seq, seller_email, buyers_email, talk_seq, reg_dt, content, writer, msg_type, talk_room_id
 		from 
 			TALK
 		where 
-			reg_dt < #{latest}
+			date_format(reg_dt, '%Y-%m-%d-%T') > date_format(#{latest}, '%Y-%m-%d-%T')
 			and
 			talk_room_id = #{talk_room_id}
 		order by reg_dt desc;

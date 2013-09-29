@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 
 import com.luxsky.chat.common.ConstField;
 import com.luxsky.chat.dao.ChatRoomDAO;
+import com.luxsky.chat.vo.ChatMessageListParam;
 import com.luxsky.chat.vo.ChatMessageListVo;
 import com.luxsky.chat.vo.ChatRoomVo;
 
@@ -34,6 +35,8 @@ public class LatestChatMessageListServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 
 		logger.info("Received SEND request");
+		
+		req.setCharacterEncoding("UTF-8");
 		
 		String sessionEmail = (String)req.getSession().getAttribute("email");
 		
@@ -61,7 +64,7 @@ public class LatestChatMessageListServlet extends HttpServlet {
 			ChatRoomVo crvo = crdao.getChatRoom(trid);
 			
 			if(crvo != null) {
-				ChatMessageListVo cmlvo = new ChatMessageListVo();
+				ChatMessageListParam cmlvo = new ChatMessageListParam();
 				cmlvo.setTalk_room_id(crvo.getTalk_room_id());
 				cmlvo.setLatest(latest);
 
@@ -88,34 +91,34 @@ public class LatestChatMessageListServlet extends HttpServlet {
 					crdao.updateLatestToBuyers(trid);
 				}
 				
-				res.getWriter().write("" + JSONObject.fromObject(map).toString() + "");
+				res.setCharacterEncoding("UTF-8");
 				res.setStatus(HttpServletResponse.SC_OK);
 				res.setContentType("application/json");
 				res.setHeader("Cache-Control", "private");
 				res.setHeader("Pragma", "no-cache");
-				req.setCharacterEncoding("UTF-8");
+				res.getWriter().write("" + JSONObject.fromObject(map).toString() + "");
 			}
 			else {
 				// 없는 대화 방임..
 				Map<String, Object> map = new HashMap<String, Object>();
 				map.put("status", ConstField.ERROR_NOT_FOUND_CHAT_ROOM);
-				res.getWriter().write("" + JSONObject.fromObject(map).toString() + "");
 				res.setStatus(HttpServletResponse.SC_OK);
 				res.setContentType("application/json");
 				res.setHeader("Cache-Control", "private");
 				res.setHeader("Pragma", "no-cache");
-				req.setCharacterEncoding("UTF-8");
+				res.setCharacterEncoding("UTF-8");
+				res.getWriter().write("" + JSONObject.fromObject(map).toString() + "");
 			}
 		}
 		else {
 			Map<String, Object> map = new HashMap<String, Object>();
 			map.put("status", reqState);
-			res.getWriter().write("" + JSONObject.fromObject(map).toString() + "");
-			res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			res.setStatus(HttpServletResponse.SC_OK);
 			res.setContentType("application/json");
 			res.setHeader("Cache-Control", "private");
 			res.setHeader("Pragma", "no-cache");
-			req.setCharacterEncoding("UTF-8");
+			res.setCharacterEncoding("UTF-8");
+			res.getWriter().write("" + JSONObject.fromObject(map).toString() + "");
 		}
 	}
 }

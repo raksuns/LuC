@@ -29,6 +29,8 @@ public class SendReadStatusServlet extends HttpServlet {
 
 		logger.info("Received SEND request");
 		
+		req.setCharacterEncoding("UTF-8");
+		
 		String sessionEmail = (String)req.getSession().getAttribute("email");
 		
 		String talk_room_id = req.getParameter("talk_room_id");
@@ -53,34 +55,34 @@ public class SendReadStatusServlet extends HttpServlet {
 				Map<String, Object> map = new HashMap<String, Object>();
 				map.put("status", 0);
 				map.put("read_status", crsvo);
-				res.getWriter().write("" + JSONObject.fromObject(map).toString() + "");
-				res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+				res.setStatus(HttpServletResponse.SC_OK);
 				res.setContentType("application/json");
 				res.setHeader("Cache-Control", "private");
 				res.setHeader("Pragma", "no-cache");
-				req.setCharacterEncoding("UTF-8");
+				res.setCharacterEncoding("UTF-8");
+				res.getWriter().write("" + JSONObject.fromObject(map).toString() + "");
 			}
 			else {
 				// 없는 대화 방임..
 				Map<String, Object> map = new HashMap<String, Object>();
 				map.put("status", ConstField.ERROR_NOT_FOUND_CHAT_ROOM);
-				res.getWriter().write("" + JSONObject.fromObject(map).toString() + "");
 				res.setStatus(HttpServletResponse.SC_OK);
 				res.setContentType("application/json");
 				res.setHeader("Cache-Control", "private");
 				res.setHeader("Pragma", "no-cache");
-				req.setCharacterEncoding("UTF-8");
+				res.setCharacterEncoding("UTF-8");
+				res.getWriter().write("" + JSONObject.fromObject(map).toString() + "");
 			}
 		}
 		else {
 			Map<String, Object> map = new HashMap<String, Object>();
 			map.put("status", reqState);
-			res.getWriter().write("" + JSONObject.fromObject(map).toString() + "");
-			res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			res.setStatus(HttpServletResponse.SC_OK);
 			res.setContentType("application/json");
 			res.setHeader("Cache-Control", "private");
 			res.setHeader("Pragma", "no-cache");
-			req.setCharacterEncoding("UTF-8");
+			res.setCharacterEncoding("UTF-8");
+			res.getWriter().write("" + JSONObject.fromObject(map).toString() + "");
 		}
 	}
 }

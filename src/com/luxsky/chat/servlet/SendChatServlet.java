@@ -31,11 +31,15 @@ public class SendChatServlet extends HttpServlet {
 
 		logger.info("Received SEND request");
 		
+		req.setCharacterEncoding("UTF-8");
+		
 		String sessionEmail = (String)req.getSession().getAttribute("email");
 		
 		String receiver = req.getParameter("receiver");
 		String talk_room_id = req.getParameter("talk_room_id");
 		String message = req.getParameter("message");
+		
+		logger.info("chat receiver : " + receiver);
 		
 		int reqState = 0;
 		
@@ -94,6 +98,9 @@ public class SendChatServlet extends HttpServlet {
 					
 					crdao.insertChatMessage(cmvo);
 					
+					logger.info("select talk seq : " + cmvo.getTalk_seq());
+					cmvo = crdao.selectChatMessage(cmvo.getTalk_seq());
+					
 					logger.info("User Session Name : " + sessionEmail);
 					ChatRoom.getInstance().sendMessageToUser(receiver, cmvo);
 					res.getWriter().print("OK");
@@ -102,24 +109,24 @@ public class SendChatServlet extends HttpServlet {
 					// 없는 대화 방임..
 					Map<String, Object> map = new HashMap<String, Object>();
 					map.put("status", ConstField.ERROR_NOT_FOUND_CHAT_ROOM);
-					res.getWriter().write("" + JSONObject.fromObject(map).toString() + "");
 					res.setStatus(HttpServletResponse.SC_OK);
 					res.setContentType("application/json");
 					res.setHeader("Cache-Control", "private");
 					res.setHeader("Pragma", "no-cache");
-					req.setCharacterEncoding("UTF-8");
+					res.setCharacterEncoding("UTF-8");
+					res.getWriter().write("" + JSONObject.fromObject(map).toString() + "");
 				}
 			}
 		}
 		else {
 			Map<String, Object> map = new HashMap<String, Object>();
 			map.put("status", reqState);
-			res.getWriter().write("" + JSONObject.fromObject(map).toString() + "");
 			res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			res.setContentType("application/json");
 			res.setHeader("Cache-Control", "private");
 			res.setHeader("Pragma", "no-cache");
-			req.setCharacterEncoding("UTF-8");
+			res.setCharacterEncoding("UTF-8");
+			res.getWriter().write("" + JSONObject.fromObject(map).toString() + "");
 		}
 	}
 }

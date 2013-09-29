@@ -116,12 +116,12 @@ public class ChatRoom {
 	}
 
 	private void sendMessageToAllInternal(Message message) {
-		String user = message.getUser();
-		logger.info("received user : " + user);
-		AsyncContext ac = clients.get(user);
+		String receiver = message.getUser();
+		logger.info("received user : " + receiver);
+		AsyncContext ac = clients.get(receiver);
 		try {
 			if(ac != null) {
-				sendMessageTo(ac, message.getMessage());
+				sendMessageTo(ac, message.getMessage(), receiver);
 			}
 			else {
 				logger.info("AsyncContext is null. Send Push Message....");
@@ -132,25 +132,35 @@ public class ChatRoom {
 				// 각 디바이드별..푸시를 보내자..
 			}
 		} catch (IOException e) {
-			clients.remove(user);
+			clients.remove(receiver);
 			e.printStackTrace();
 		}
-		logger.info("Send message [" + user + "]-[" + message.getMessage() + "]");
+		logger.info("Send message to [" + receiver + "]-[" + message.getMessage() + "]");
 	}
 	
-	private void sendMessageTo(AsyncContext ac, ChatMessageVo message) throws IOException {
+	private void sendMessageTo(AsyncContext ac, ChatMessageVo message, String receiver) throws IOException {
 		logger.info(">>>>>>>>>> sendMessageTo <<<<<<<<<<");
 		
 		HttpServletResponse res = (HttpServletResponse) ac.getResponse();
 		
 		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("status", 0);
 		map.put("chat_message", message);
-		res.getWriter().write("" + JSONObject.fromObject(map).toString() + "");
 		res.setStatus(HttpServletResponse.SC_OK);
-		res.setContentType("application/json");
+		res.setContentType("application/json;charset=UTF-8");
+		res.setCharacterEncoding("UTF-8");
+		res.getWriter().write("" + JSONObject.fromObject(map).toString() + "");
 
 		ac.complete();
+		
+		ChatRoomDAO crdao = new ChatRoomDAO();
+		if(receiver.equals(message.getSeller_email())) {
+			// seller update latest time..
+			crdao.updateLatestToSeller(message.getTalk_room_id());
+		}
+		else {
+			// buyers update latest time..
+			crdao.updateLatestToBuyers(message.getTalk_room_id());
+		}
 	}
 
 	public void close() {

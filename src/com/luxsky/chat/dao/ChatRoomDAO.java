@@ -6,6 +6,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 
 import com.luxsky.chat.common.SqlSessionMgr;
+import com.luxsky.chat.vo.ChatMessageListParam;
 import com.luxsky.chat.vo.ChatMessageListVo;
 import com.luxsky.chat.vo.ChatMessageVo;
 import com.luxsky.chat.vo.ChatReadStatusVo;
@@ -20,6 +21,18 @@ public class ChatRoomDAO {
 		int result = 0;
 		try {
 			result = (Integer) session.selectOne(MAPPER_PKG_NAME + "chatRoomCheck", crvo);
+		}
+		finally {
+			session.close();
+		}
+		return result;
+	}
+	
+	public int selectChatRoom(ChatRoomVo crvo) {
+		SqlSession session = sqlSessionFactory.openSession();
+		int result = 0;
+		try {
+			result = (Integer) session.selectOne(MAPPER_PKG_NAME + "selectChatRoom", crvo);
 		}
 		finally {
 			session.close();
@@ -77,7 +90,19 @@ public class ChatRoomDAO {
 		return result;
 	}
 	
-	public List<ChatMessageListVo> getChatMessageList(ChatMessageListVo cmlvo) {
+	public ChatMessageVo selectChatMessage(int talk_seq) {
+		SqlSession session = sqlSessionFactory.openSession();
+		ChatMessageVo crvo = null;
+		try {
+			crvo = (ChatMessageVo) session.selectOne(MAPPER_PKG_NAME + "selectChatMessage", talk_seq);
+		}
+		finally {
+			session.close();
+		}
+		return crvo;
+	}
+	
+	public List<ChatMessageListVo> getChatMessageList(ChatMessageListParam cmlvo) {
 		SqlSession session = sqlSessionFactory.openSession();
 		List<ChatMessageListVo> list = null;
 		try {

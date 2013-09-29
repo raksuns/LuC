@@ -16,6 +16,7 @@
 		<typeAlias alias="ChatMessageVo" type="com.luxsky.chat.vo.ChatMessageVo" />
 		<typeAlias alias="ChatReadStatusVo" type="com.luxsky.chat.vo.ChatReadStatusVo" />
 		<typeAlias alias="ChatMessageListVo" type="com.luxsky.chat.vo.ChatMessageListVo" />
+		<typeAlias alias="ChatMessageListParam" type="com.luxsky.chat.vo.ChatMessageListParam" />
 	</typeAliases>
     <environments default="development">
         <environment id="development">
