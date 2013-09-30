@@ -29,8 +29,6 @@ public class SendPhotoServlet extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 
-		logger.info("Received SEND request");
-		
 		req.setCharacterEncoding("UTF-8");
 		
 		String sessionEmail = (String)req.getSession().getAttribute("email");
@@ -57,19 +55,19 @@ public class SendPhotoServlet extends HttpServlet {
 			reqState = ConstField.ERROR_REQ_PARAM;
 		}
 		else if(origUrl == null || "".equals(origUrl)) {
-			logger.info("message is not found.");
+			logger.info("origUrl is not found.");
 			reqState = ConstField.ERROR_REQ_PARAM;
 		}
 		else if(thumbUrl == null || "".equals(thumbUrl)) {
-			logger.info("message is not found.");
+			logger.info("thumbUrl is not found.");
 			reqState = ConstField.ERROR_REQ_PARAM;
 		}
 		else if(thumbSizeWidth == null || "".equals(thumbSizeWidth)) {
-			logger.info("message is not found.");
+			logger.info("thumbSizeWidth is not found.");
 			reqState = ConstField.ERROR_REQ_PARAM;
 		}
 		else if(thumbSizeHeight == null || "".equals(thumbSizeHeight)) {
-			logger.info("message is not found.");
+			logger.info("thumbSizeHeight is not found.");
 			reqState = ConstField.ERROR_REQ_PARAM;
 		}
 		
@@ -106,6 +104,7 @@ public class SendPhotoServlet extends HttpServlet {
 					cmvo.setBuyers_email(crvo.getBuyers_email());
 					cmvo.setContent(JSONObject.fromObject(photo).toString());
 					cmvo.setMsg_type("P");
+					cmvo.setTalk_room_id(crvo.getTalk_room_id());
 					
 					if(sessionEmail.equals(crvo.getSeller_email())) {
 						cmvo.setWriter("S");
@@ -115,6 +114,9 @@ public class SendPhotoServlet extends HttpServlet {
 					}
 					
 					crdao.insertChatMessage(cmvo);
+					
+					logger.info("select talk seq : " + cmvo.getTalk_seq());
+					cmvo = crdao.selectChatMessage(cmvo.getTalk_seq());
 					
 					logger.info("User Session Name : " + sessionEmail);
 					ChatRoom.getInstance().sendMessageToUser(receiver, cmvo);

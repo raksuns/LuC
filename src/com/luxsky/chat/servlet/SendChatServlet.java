@@ -121,7 +121,7 @@ public class SendChatServlet extends HttpServlet {
 		else {
 			Map<String, Object> map = new HashMap<String, Object>();
 			map.put("status", reqState);
-			res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			res.setStatus(HttpServletResponse.SC_OK);
 			res.setContentType("application/json");
 			res.setHeader("Cache-Control", "private");
 			res.setHeader("Pragma", "no-cache");

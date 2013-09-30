@@ -72,10 +72,10 @@
 						data: {
 							receiver : '<%= isSeller ? "test@naver.com" : sellerEmail %>',
 							talk_room_id : talk_room_id,
-							orig_url: 'http://localhost:8080/chatphoto/upload/5/377918.jpg',
-							thumb_url: 'http://localhost:8080/chatphoto/upload/5/AILEE_PHOTO-04.jpg',
+							origUrl: 'http://localhost:8080/chatphoto/upload/5/377918.jpg',
+							thumbUrl: 'http://localhost:8080/chatphoto/upload/5/AILEE_PHOTO-04.jpg',
 							thumbSizeWidth: 200,
-							thumbSizeHeight: 200,
+							thumbSizeHeight: 200
 						},
 						success: function(data) {
 							console.log('sendText response : ' + JSON.stringify(data));
