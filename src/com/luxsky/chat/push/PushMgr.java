@@ -1,8 +1,18 @@
 package com.luxsky.chat.push;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
+
+import com.luxsky.chat.dao.ChatRoomDAO;
+import com.luxsky.chat.dao.UserDAO;
+import com.luxsky.chat.vo.ChatMessageVo;
+import com.luxsky.chat.vo.UnreadCountVo;
+import com.luxsky.chat.vo.UserStatusVo;
 
 
 public class PushMgr {
@@ -21,9 +31,6 @@ public class PushMgr {
 	private AndroidPush android = null;
 
 	private UserDAO udao = null;
-	private DeviceVo dvo = null;
-	private PushDAO pdao = null;
-	private AlarmVo avo  = null;
 	
 	private PushMgr() {
 		iphone = IPhonePush.getInstance();
@@ -43,87 +50,57 @@ public class PushMgr {
 	 * @param msg
 	 * @param type : 0 - FriendChatRequest, 1 - Friend Relation Response.
 	 */
-	public boolean sendPushOne(String nickname, String msg, int type) {
+	public boolean sendPushOne(String receiver, ChatMessageVo message) {
 		
-		accessLogger.info("Send Push to : " + nickname);
+		accessLogger.info("Send Push to : " + receiver);
 		
 		try {
 			// get user device type
 			udao = new UserDAO();
-			dvo = new DeviceVo();
-			pdao = new PushDAO();
 			
-			dvo = udao.getDeviceVo(nickname);
-			dvo.setNickName(nickname);
+			UserStatusVo usvo = udao.selectUserStatus(receiver);
 			
-			avo = udao.selectAlarm(nickname);
-			int timeRange = udao.checkAlarmTime(nickname);
+			int timeRange = udao.checkAlertTime(receiver);
 			
-			if(type == FriendChatRequest && "Y".equals(avo.getAlarmChat()) && timeRange > 0) {
-				String dvcToken = dvo.getDeviceToken();
+			if("Y".equals(usvo.getChat_alert()) && timeRange > 0) {
+				String dvcToken = usvo.getDeviceToken();
 				if(dvcToken != null && !"".equals(dvcToken)){
+					// badgeCount 는...전체 몇개..로...
+					// 메시지는 신규 메시지로 받은.. 채팅방 목록 ?
+					ChatRoomDAO crdao = new ChatRoomDAO();
+					List<UnreadCountVo> badgeList = null;
+					if(receiver.equals(message.getSeller_email())) {
+						badgeList = crdao.selectCountSellerUnread(receiver);
+					}
+					else {
+						badgeList = crdao.selectCountBuyersUnread(receiver);
+					}
+					
 					int badgeCount = 0;
-					badgeCount = pdao.getFriendChatReqPushListCount(nickname);
+					if(badgeList != null) {
+						int size = badgeList.size();
+						for(int i = 0; i > size; i++) {
+							badgeCount += badgeList.get(i).getTalk_count();
+						}
+					}
+					
+					Map<String, Object> map = new HashMap<String, Object>();
+					map.put("list", badgeList);
 					
 					// android => push
-					if(dvo != null && ETalkCommon.TYPE_ANDROID.equals(dvo.getDeviceType())) {
+					if(usvo != null && "A".equals(usvo.getDeviceType())) {
 						accessLogger.info("send android push");
-						return android.push(dvcToken, msg, badgeCount);
+						return android.push(dvcToken, JSONObject.fromObject(map).toString(), badgeCount);
 					}
-					else if(dvo != null && ETalkCommon.TYPE_IPHONE.equals(dvo.getDeviceType())) {
+					else if(usvo != null && "I".equals(usvo.getDeviceType())) {
 						// iphone => push
 						accessLogger.info("send iphone push");
-						return iphone.push(dvcToken, msg, badgeCount);
+						return iphone.push(dvcToken, JSONObject.fromObject(map).toString(), badgeCount);
 					}
 					else {
 						accessLogger.info("send nothing");
+						return false;
 					}
-					return true;
-				}
-			}
-			else if(type == FriendRelation && "Y".equals(avo.getAlarmFriend()) && timeRange > 0) {
-				String dvcToken = dvo.getDeviceToken();
-				if(dvcToken != null && !"".equals(dvcToken)){
-					int badgeCount = 0;
-					badgeCount = pdao.getFriendResPushListCount(nickname);
-					
-					// android => push
-					if(dvo != null && ETalkCommon.TYPE_ANDROID.equals(dvo.getDeviceType())) {
-						accessLogger.info("send android push");
-						return android.push(dvcToken, msg, badgeCount);
-					}
-					else if(dvo != null && ETalkCommon.TYPE_IPHONE.equals(dvo.getDeviceType())) {
-						// iphone => push
-						accessLogger.info("send iphone push");
-						return iphone.push(dvcToken, msg, badgeCount);
-					}
-					else {
-						accessLogger.info("send nothing");
-					}
-					return true;
-				}
-			}
-			else if(type == SmsSend && "Y".equals(avo.getAlarmSms()) && timeRange > 0) {
-				String dvcToken = dvo.getDeviceToken();
-				if(dvcToken != null && !"".equals(dvcToken)){
-					int badgeCount = 0;
-					badgeCount = pdao.getFriendChatReqPushListCount(nickname);
-					badgeCount += pdao.getFriendResPushListCount(nickname);
-					
-					// android => push
-					if(dvo != null && ETalkCommon.TYPE_ANDROID.equals(dvo.getDeviceType())) {
-						accessLogger.info("send android push");
-						return android.push(dvcToken, msg, badgeCount);
-					}
-					else if(dvo != null && ETalkCommon.TYPE_IPHONE.equals(dvo.getDeviceType())) {
-						// iphone => push
-						accessLogger.info("send iphone push");
-						return iphone.push(dvcToken, msg, badgeCount);
-					}
-					else {
-						accessLogger.info("send nothing");
-					}
-					return true;
 				}
 			}
 		}
@@ -131,5 +108,35 @@ public class PushMgr {
 			errorLogger.error("", e);
 		}
 		return false;
+	}
+	
+	public void testPush(String receiver, boolean isSeller) {
+		ChatRoomDAO crdao = new ChatRoomDAO();
+		List<UnreadCountVo> badgeList = null;
+		if(isSeller) {
+			badgeList = crdao.selectCountSellerUnread(receiver);
+		}
+		else {
+			badgeList = crdao.selectCountBuyersUnread(receiver);
+		}
+		
+		int badgeCount = 0;
+		if(badgeList != null) {
+			int size = badgeList.size();
+			for(int i = 0; i > size; i++) {
+				badgeCount += badgeList.get(i).getTalk_count();
+			}
+		}
+		
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("list", badgeList);
+		
+		System.out.println(JSONObject.fromObject(map).toString());
+	}
+	
+	public static void main(String[] args) {
+		PushMgr push = new PushMgr();
+		push.testPush("test@naver.com", false);
+		push.testPush("devstories@daum.net", true);
 	}
 }

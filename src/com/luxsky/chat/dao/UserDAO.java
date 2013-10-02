@@ -1,27 +1,38 @@
 package com.luxsky.chat.dao;
 
-import java.util.List;
-
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 
 import com.luxsky.chat.common.SqlSessionMgr;
+import com.luxsky.chat.vo.UserStatusVo;
 import com.luxsky.chat.vo.UserVo;
 
 public class UserDAO {
 	private final static String MAPPER_PKG_NAME = "com.luxsky.chat.user.Mapper.";
 	private SqlSessionFactory sqlSessionFactory = SqlSessionMgr.getSqlSession();
 	
-	public UserVo selectUser(String nickname) {
-		UserVo uvo = null;
+	public UserStatusVo selectUserStatus(String email) {
+		UserStatusVo usvo = null;
 		SqlSession session = sqlSessionFactory.openSession();
 		try {
-			uvo = (UserVo) session.selectOne(MAPPER_PKG_NAME + "selectUser", nickname);
+			usvo = (UserStatusVo) session.selectOne(MAPPER_PKG_NAME + "selectUserStatus", email);
 		}
 		finally {
 			session.close();
 		}
-		return uvo;
+		return usvo;
+	}
+	
+	public int checkAlertTime(String email) {
+		SqlSession session = sqlSessionFactory.openSession();
+		int result = 0;
+		try {
+			result = (Integer) session.selectOne(MAPPER_PKG_NAME + "checkAlertTime", email);
+		}
+		finally {
+			session.close();
+		}
+		return result;
 	}
 	
 	public int memberCheck(UserVo user) {

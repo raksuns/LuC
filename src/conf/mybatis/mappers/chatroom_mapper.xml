@@ -105,7 +105,7 @@
 			date_format(reg_dt, '%Y-%m-%d-%T') > date_format(#{latest}, '%Y-%m-%d-%T')
 			and
 			talk_room_id = #{talk_room_id}
-		order by reg_dt desc;
+		order by reg_dt asc;
 		]]>
 	</select>
 	
@@ -123,5 +123,40 @@
 		WHERE talk_room_id = #{talk_room_id}
 		]]>
 	</update>
+	
+	<select id="selectCountSellerUnread" parameterType="String" resultType="UnreadCountVo">
+		<![CDATA[
+		select talk_room_id, count(1) as talk_count from (
+			select a.talk_room_id from
+			TALK a, 
+				(select talk_room_id, seller_read_dt from 
+					TALK_ROOM 
+					where seller_email = #{sellerEmail}) b
+			where 
+				a.talk_room_id = b.talk_room_id
+				and
+				a.reg_dt > b.seller_read_dt
+				and
+				a.writer = 'B') c
+		group by talk_room_id
+		]]>
+	</select>
+	<select id="selectCountBuyersUnread" parameterType="String" resultType="UnreadCountVo">
+		<![CDATA[
+		select talk_room_id, count(1) as talk_count from (
+			select a.talk_room_id from
+			TALK a, 
+				(select talk_room_id, buyers_read_dt from 
+					TALK_ROOM 
+					where buyers_email = #{buyersEmail}) b
+			where 
+				a.talk_room_id = b.talk_room_id
+				and
+				a.reg_dt > b.buyers_read_dt
+				and
+				a.writer = 'S') c
+		group by talk_room_id
+		]]>
+	</select>
 </mapper>
 	

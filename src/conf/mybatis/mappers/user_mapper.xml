@@ -4,11 +4,22 @@
 	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.luxsky.chat.user.Mapper">
 
-	<select id="selectUser" parameterType="String" resultType="UserVo">
+	<select id="selectUserStatus" parameterType="String" resultType="UserStatusVo">
 		<![CDATA[
-		select userId, nickName, sex, age, location, title, joinCount, profileImage, profileThumbImage,
-			isConnect, smessage, houseLock, deviceType, regDate
-		from tbl_user where nickName = #{nickName} and secession = 'N'
+		select status, chat_alert, alert_start, alert_end, deviceType, deviceToken
+		from MEMBER where email = #{email}
+		]]>
+	</select>
+	<select id="checkAlertTime" parameterType="String" resultType="Integer">
+		<![CDATA[
+		select 
+			count(1)
+		from 
+			MEMBER 
+		where 
+			email = #{email}
+			and alert_start < TIME_FORMAT(CURRENT_TIME, '%k:%i')
+			and alert_end > TIME_FORMAT(CURRENT_TIME, '%k:%i')
 		]]>
 	</select>
 

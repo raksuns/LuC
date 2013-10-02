@@ -11,6 +11,7 @@ import com.luxsky.chat.vo.ChatMessageListVo;
 import com.luxsky.chat.vo.ChatMessageVo;
 import com.luxsky.chat.vo.ChatReadStatusVo;
 import com.luxsky.chat.vo.ChatRoomVo;
+import com.luxsky.chat.vo.UnreadCountVo;
 
 public class ChatRoomDAO {
 	private final static String MAPPER_PKG_NAME = "com.luxsky.chat.chatroom.Mapper.";
@@ -138,5 +139,31 @@ public class ChatRoomDAO {
 			session.close();
 		}
 		return result;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<UnreadCountVo> selectCountSellerUnread(String sellerEmail) {
+		SqlSession session = sqlSessionFactory.openSession();
+		List<UnreadCountVo> list = null;
+		try {
+			list = session.selectList(MAPPER_PKG_NAME + "selectCountSellerUnread", sellerEmail);
+		}
+		finally {
+			session.close();
+		}
+		return list;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<UnreadCountVo> selectCountBuyersUnread(String buyersEmail) {
+		SqlSession session = sqlSessionFactory.openSession();
+		List<UnreadCountVo> list = null;
+		try {
+			list = session.selectList(MAPPER_PKG_NAME + "selectCountBuyersUnread", buyersEmail);
+		}
+		finally {
+			session.close();
+		}
+		return list;
 	}
 }

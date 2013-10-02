@@ -11,11 +11,13 @@
 	</settings>
 	
 	<typeAliases>
-		<typeAlias alias="UserVo" type="com.luxsky.chat.vo.UserVo" />
-		<typeAlias alias="ChatRoomVo" type="com.luxsky.chat.vo.ChatRoomVo" />
-		<typeAlias alias="ChatMessageVo" type="com.luxsky.chat.vo.ChatMessageVo" />
-		<typeAlias alias="ChatReadStatusVo" type="com.luxsky.chat.vo.ChatReadStatusVo" />
-		<typeAlias alias="ChatMessageListVo" type="com.luxsky.chat.vo.ChatMessageListVo" />
+		<typeAlias alias="UserVo" 				type="com.luxsky.chat.vo.UserVo" />
+		<typeAlias alias="UserStatusVo" 		type="com.luxsky.chat.vo.UserStatusVo" />
+		<typeAlias alias="UnreadCountVo" 		type="com.luxsky.chat.vo.UnreadCountVo" />
+		<typeAlias alias="ChatRoomVo" 			type="com.luxsky.chat.vo.ChatRoomVo" />
+		<typeAlias alias="ChatMessageVo" 		type="com.luxsky.chat.vo.ChatMessageVo" />
+		<typeAlias alias="ChatReadStatusVo" 	type="com.luxsky.chat.vo.ChatReadStatusVo" />
+		<typeAlias alias="ChatMessageListVo" 	type="com.luxsky.chat.vo.ChatMessageListVo" />
 		<typeAlias alias="ChatMessageListParam" type="com.luxsky.chat.vo.ChatMessageListParam" />
 	</typeAliases>
     <environments default="development">
